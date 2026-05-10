@@ -47,6 +47,7 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py.cover
+*.pyc
 .hypothesis/
 .pytest_cache/
 cover/
@@ -216,3 +217,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# MacOS
+.DS_Store

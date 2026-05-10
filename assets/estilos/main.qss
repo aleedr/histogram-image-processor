@@ -1,0 +1,456 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+QMainWindow {
+    background-color: #F3F4F6;
+}
+
+QWidget {
+    font-family: "Segoe UI", "Arial";
+    color: #111827;
+}
+
+QLabel {
+    color: #111827;
+    background-color: transparent;
+}
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+#Encabezado {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+}
+
+#TituloApp {
+    color: #111827;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+#SubtituloApp {
+    color: #6B7280;
+    font-size: 14px;
+}
+
+/* =========================================================
+   TARJETAS GENERALES
+========================================================= */
+
+#Tarjeta {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+}
+
+#TituloSeccion {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0px;
+    padding: 0px;
+}
+
+#AyudaSeccion {
+    color: #6B7280;
+    font-size: 13px;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* =========================================================
+   LIENZO DE IMAGEN
+========================================================= */
+
+#LienzoImagen {
+    background-color: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 15px;
+}
+
+/* =========================================================
+   PANEL DE CONTROL
+========================================================= */
+
+#PanelLateral {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+}
+
+#AreaScrollControl {
+    background-color: transparent;
+    border: none;
+}
+
+#ContenidoControl {
+    background-color: transparent;
+}
+
+#TituloPanel {
+    color: #111827;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+#SubtituloPanel {
+    color: #6B7280;
+    font-size: 12px;
+}
+
+/* =========================================================
+   TARJETAS DE OPCIÓN
+========================================================= */
+
+#TarjetaOpcion {
+    background-color: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+}
+
+#TituloTarjetaOpcion {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+QPushButton {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    min-height: 40px;
+}
+
+QPushButton:disabled {
+    background-color: #D1D5DB;
+    color: #6B7280;
+}
+
+QPushButton#BotonPrimario {
+    background-color: #2563EB;
+    color: #FFFFFF;
+    min-height: 44px;
+}
+
+QPushButton#BotonPrimario:hover {
+    background-color: #1D4ED8;
+}
+
+QPushButton#BotonPrimario:pressed {
+    background-color: #1E40AF;
+}
+
+QPushButton#BotonExito {
+    background-color: #16A34A;
+    color: #FFFFFF;
+    min-height: 44px;
+}
+
+QPushButton#BotonExito:hover {
+    background-color: #15803D;
+}
+
+QPushButton#BotonExito:pressed {
+    background-color: #166534;
+}
+
+QPushButton#BotonSecundario {
+    background-color: #475569;
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QPushButton#BotonSecundario:hover {
+    background-color: #334155;
+}
+
+QPushButton#BotonSecundario:pressed {
+    background-color: #1E293B;
+}
+
+/* =========================================================
+   RADIO BUTTONS
+========================================================= */
+
+QRadioButton {
+    color: #111827;
+    font-size: 13px;
+    font-weight: 500;
+    spacing: 10px;
+    min-height: 28px;
+    padding: 0px;
+    background-color: transparent;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+}
+
+QRadioButton::indicator:unchecked {
+    border: 2px solid #94A3B8;
+    border-radius: 9px;
+    background-color: #FFFFFF;
+}
+
+QRadioButton::indicator:checked {
+    border: 5px solid #2563EB;
+    border-radius: 9px;
+    background-color: #FFFFFF;
+}
+
+/* =========================================================
+   ETIQUETAS DE CAMPO + SPINBOX
+========================================================= */
+
+#EtiquetaCampo {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 70px;
+    background-color: transparent;
+}
+
+QSpinBox {
+    background-color: #FFFFFF;
+    color: #111827;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-height: 34px;
+    min-width: 100px;
+    font-size: 13px;
+}
+
+QSpinBox:focus {
+    border: 2px solid #2563EB;
+}
+
+QSpinBox::up-button {
+    width: 18px;
+    background-color: #E5E7EB;
+    border: none;
+    border-top-right-radius: 8px;
+}
+
+QSpinBox::down-button {
+    width: 18px;
+    background-color: #E5E7EB;
+    border: none;
+    border-bottom-right-radius: 8px;
+}
+
+QSpinBox::up-button:hover,
+QSpinBox::down-button:hover {
+    background-color: #CBD5E1;
+}
+
+/* =========================================================
+   ETIQUETAS DE ESTADO
+========================================================= */
+
+#EstadoNeutral {
+    background-color: #F3F4F6;
+    color: #4B5563;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+}
+
+#EstadoExito {
+    background-color: #DCFCE7;
+    color: #166534;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 700;
+}
+
+#EstadoError {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 700;
+}
+
+#InfoPequena {
+    background-color: #EFF6FF;
+    color: #1D4ED8;
+    border-radius: 10px;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#TextoAyuda {
+    color: #6B7280;
+    font-size: 12px;
+    background-color: #F9FAFB;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* =========================================================
+   SEPARADOR
+========================================================= */
+
+#Separador {
+    background-color: #E5E7EB;
+    max-height: 1px;
+    min-height: 1px;
+    border: none;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+QScrollArea {
+    border: none;
+    background-color: transparent;
+}
+
+QScrollBar:vertical {
+    background-color: transparent;
+    width: 8px;
+    margin: 6px 2px 6px 2px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #CBD5E1;
+    border-radius: 4px;
+    min-height: 28px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #94A3B8;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+/* =========================================================
+   PÁGINA DE RESULTADOS
+========================================================= */
+
+#EncabezadoResultados {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+}
+
+#TituloResultados {
+    color: #111827;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+#SubtituloResultados {
+    color: #6B7280;
+    font-size: 13px;
+}
+
+#PanelResultado {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+}
+
+#TituloPanelResultado {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+#ContenidoPanelResultado {
+    background-color: #F9FAFB;
+    border: 1px dashed #CBD5E1;
+    border-radius: 14px;
+    color: #475569;
+    font-size: 13px;
+    padding: 16px;
+}
+
+/* =========================================================
+   SUPERPOSICIÓN DE CARGA
+========================================================= */
+
+#TarjetaCarga {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+    min-width: 360px;
+    max-width: 420px;
+}
+
+#TituloCarga {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+#SubtituloCarga {
+    color: #6B7280;
+    font-size: 13px;
+}
+
+#ProgresoCarga {
+    min-height: 10px;
+    border-radius: 5px;
+    background-color: #E5E7EB;
+}
+
+#ProgresoCarga::chunk {
+    border-radius: 5px;
+    background-color: #2563EB;
+}
+
+/* =========================================================
+   BARRA DE ESTADO
+========================================================= */
+
+QStatusBar {
+    background-color: transparent;
+    color: #4B5563;
+    font-size: 12px;
+}
+
+/* =========================================================
+   MESSAGE BOX
+========================================================= */
+
+QMessageBox {
+    background-color: #FFFFFF;
+}
+
+QMessageBox QLabel {
+    color: #111827;
+}
+
+QMessageBox QPushButton {
+    background-color: #2563EB;
+    color: #FFFFFF;
+    min-width: 90px;
+}
