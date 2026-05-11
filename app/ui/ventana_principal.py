@@ -103,12 +103,18 @@ class VentanaPrincipal(QMainWindow):
 
         QTimer.singleShot(1400, lambda: self.finalizar_procesamiento(datos))
 
-    def finalizar_procesamiento(self, datos: dict) -> None:
+    def finalizar_procesamiento(self, datos: dict) -> None: 
+        from app.servicios.procesador_histograma import procesar_imagen
+        resultado = procesar_imagen(
+        imagen=datos["imagen_cv"],
+        metodo=datos["metodo"],
+        s_min=datos["minimo"],
+        s_max=datos["maximo"],
+    )
+        datos["resultado_procesamiento"] = resultado
         self.pagina_resultados.establecer_resultados(datos)
-
         self.superposicion_carga.ocultar_superposicion()
         self.pila_paginas.setCurrentIndex(self.INDICE_PAGINA_RESULTADOS)
-
         self.barra_estado.showMessage("Procesamiento completado. Resultados generados.")
 
     def volver_a_procesamiento(self) -> None:
