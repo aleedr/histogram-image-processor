@@ -15,11 +15,8 @@ import cv2
 # ---------------------------------------------------------------------------
 # Expansión de histograma
 # ---------------------------------------------------------------------------
-def expandir_histograma(
-    imagen: np.ndarray,
-    s_min: int = 0,
-    s_max: int = 255,
-) -> np.ndarray:
+def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> np.ndarray:
+
     """
     Aplica expansión de histograma a una imagen en escala de grises.
  
@@ -69,7 +66,7 @@ def expandir_histograma(
  
     # Aplicamos la tabla de transformación a cada píxel de la imagen.
     imagen_expandida = tabla[imagen]
- 
+
     return imagen_expandida
  
  
@@ -77,7 +74,8 @@ def expandir_histograma(
 # Ecualización de histograma
 # ---------------------------------------------------------------------------
  
-def ecualizar_histograma(imagen: np.ndarray) -> np.ndarray:
+def ecualizar_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> np.ndarray:
+
     """
     Aplica ecualización de histograma a una imagen en escala de grises.
  
@@ -99,28 +97,44 @@ def ecualizar_histograma(imagen: np.ndarray) -> np.ndarray:
     np.ndarray
         Imagen ecualizada (2D, dtype uint8).
     """
+
     if imagen is None or imagen.ndim != 2:
         raise ValueError("La imagen debe ser un arreglo 2D en escala de grises.")
+
+    if s_min >= s_max:
+        raise ValueError("s_min debe ser mayor a s_max.")
  
-    M, N = imagen.shape          # filas x columnas = total de píxeles
-    L = 256                      # niveles de gris posibles (0 a 255)
-    total_pixeles = M * N        # M * N
+    L = 256                         # niveles de gris posibles (0 a 255)
+    total_pixeles = imagen.size     # tamaño de la imagen
  
     # 1. Histograma: n_k = número de píxeles con nivel de gris k
-    histograma, _ = np.histogram(imagen.flatten(), bins=256, range=(0, 255))
+    histograma, _ = np.histogram(imagen.flatten(), bins=256, range=(0, 256))
  
     # 2. Frecuencias relativas: p_k = n_k / (M * N)
     frecuencias_relativas = histograma / total_pixeles
  
     # 3. Distribución acumulada (CDF): suma acumulada de p_k
     cdf = np.cumsum(frecuencias_relativas)
+
+    # Validando y normalizando la distribución acumulada
+    cdf_valores_validos = cdf[cdf > 0]
+    if len(cdf_valores_validos) == 0:
+        return imagen.copy() 
+    
+    cdf_min = cdf_valores_validos[0]
+    if cdf_min == 1:
+        return np.full_like(imagen, s_min, dtype=np.uint8)
+    
+    cdf_normalizada = (cdf - cdf_min) / (1 - cdf_min)
+    cdf_normalizada = np.clip(cdf_normalizada, 0, 1)
  
     # 4. Tabla de transformación: s_k = (L - 1) * CDF(k), redondeado
-    tabla = np.round((L - 1) * cdf).astype(np.uint8)
+    tabla = s_min + (s_max - s_min) * cdf_normalizada
+    tabla = np.round(tabla).astype(np.uint8)
  
     # 5. Aplicar la tabla a cada píxel de la imagen
     imagen_ecualizada = tabla[imagen]
- 
+
     return imagen_ecualizada
  
  
@@ -152,12 +166,8 @@ def calcular_histograma(imagen: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 # Función principal de procesamiento (punto de entrada desde la UI)
 # ---------------------------------------------------------------------------
  
-def procesar_imagen(
-    imagen: np.ndarray,
-    metodo: str,
-    s_min: int = 0,
-    s_max: int = 255,
-) -> dict:
+def procesar_imagen(imagen: np.ndarray, metodo: str, s_min: int = 0, s_max: int = 255) -> dict: 
+
     """
     Procesa una imagen aplicando el método indicado.
  
@@ -205,7 +215,7 @@ def procesar_imagen(
         if "Expansión" in metodo or "Expansion" in metodo:
             imagen_procesada = expandir_histograma(imagen, s_min=s_min, s_max=s_max)
         elif "Ecualización" in metodo or "Ecualizacion" in metodo:
-            imagen_procesada = ecualizar_histograma(imagen)
+            imagen_procesada = ecualizar_histograma(imagen, s_min=s_min, s_max=s_max)
         else:
             resultado["error"] = f"Método desconocido: {metodo}"
             return resultado

@@ -54,10 +54,11 @@ class LienzoImagen(QWidget):
 
     def obtener_datos_grid(self) -> dict:
         return {
-            "x": self.grid_x,
-            "y": self.grid_y,
-            "tamano": self.tamano_grid,
-            "habilitado": self.grid_habilitado,
+            "x_visual": self.grid_x,
+            "y_visual": self.grid_y,
+            "tamano_visual": self.tamano_grid,
+            "activo": self.grid_habilitado,
+            "region_real": self.obtener_region_real_grid(),
         }
 
     # Este método conserva su nombre en inglés porque Qt lo llama automáticamente.
@@ -181,6 +182,47 @@ class LienzoImagen(QWidget):
 
         self.grid_x = max(minimo_x, min(self.grid_x, maximo_x))
         self.grid_y = max(minimo_y, min(self.grid_y, maximo_y))
+
+    def obtener_region_real_grid(self) -> dict | None:
+        # Convierte la posición visual del grid en coordenadas reales de la imagen original.
+        # Retorna un diccionario con las medidas reales del recorte.
+        # Si no hay imagen o el grid está desactivado, retorna none.
+
+        if self.pixmap_original is None or self.pixmap_escalado is None:
+            return None
+
+        if not self.grid_habilitado:
+            return None
+
+        rect_imagen = self._obtener_rectangulo_imagen()
+
+        if rect_imagen.width() <= 0 or rect_imagen.height() <= 0:
+            return None
+
+        escala_x = self.pixmap_original.width() / rect_imagen.width()
+        escala_y = self.pixmap_original.height() / rect_imagen.height()
+
+        x_visual_relativo = self.grid_x - rect_imagen.left()
+        y_visual_relativo = self.grid_y - rect_imagen.top()
+
+        x_real = int(round(x_visual_relativo * escala_x))
+        y_real = int(round(y_visual_relativo * escala_y))
+
+        ancho_real = int(round(self.tamano_grid * escala_x))
+        alto_real = int(round(self.tamano_grid * escala_y))
+
+        x_real = max(0, min(x_real, self.pixmap_original.width() - 1))
+        y_real = max(0, min(y_real, self.pixmap_original.height() - 1))
+
+        ancho_real = max(1, min(ancho_real, self.pixmap_original.width() - x_real))
+        alto_real = max(1, min(alto_real, self.pixmap_original.height() - y_real))
+
+        return {
+            "x": x_real,
+            "y": y_real,
+            "ancho": ancho_real,
+            "alto": alto_real,
+        }
 
 
 class VisorImagen(QWidget):
