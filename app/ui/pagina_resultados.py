@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
+from app.ui.tabla_transformacion import VentanaTablaTransformacion
+
 # ---------------------------------------------------------------------------
 # Helpers para convertir datos a QPixmap
 # ---------------------------------------------------------------------------
@@ -73,6 +75,7 @@ class PanelResultado(QFrame):
         super().__init__()
 
         self.setObjectName("PanelResultado")
+        self.pixmap_original = None
 
         diseno = QVBoxLayout(self)
         diseno.setContentsMargins(18, 18, 18, 18)
@@ -81,13 +84,15 @@ class PanelResultado(QFrame):
         self.etiqueta_titulo = QLabel(titulo)
         self.etiqueta_titulo.setObjectName("TituloPanelResultado")
 
-        # Etiqueta que muestra texto placeholder o imagen real
         self.etiqueta_contenido = QLabel("Pendiente de resultado.")
         self.etiqueta_contenido.setObjectName("ContenidoPanelResultado")
         self.etiqueta_contenido.setAlignment(Qt.AlignCenter)
         self.etiqueta_contenido.setMinimumHeight(220)
         self.etiqueta_contenido.setWordWrap(True)
-        self.etiqueta_contenido.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.etiqueta_contenido.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
 
         diseno.addWidget(self.etiqueta_titulo)
         diseno.addWidget(self.etiqueta_contenido)
@@ -119,6 +124,11 @@ class PaginaResultados(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
+        self.tabla_transformacion_actual = None
+        self.metodo_actual = None
+        self.tabla_transformacion_actual = None
+        self.conteos_originales_actuales = None
+        self.metodo_actual = None
         self._construir_interfaz()
 
     def _construir_interfaz(self) -> None:
@@ -168,11 +178,17 @@ class PaginaResultados(QWidget):
         diseno_texto.addWidget(titulo)
         diseno_texto.addWidget(subtitulo)
 
+        self.boton_ver_tabla = QPushButton("Ver tabla de valores")
+        self.boton_ver_tabla.setObjectName("BotonPrimario")
+        self.boton_ver_tabla.clicked.connect(self.mostrar_tabla_transformacion)
+        self.boton_ver_tabla.setEnabled(False)
+
         self.boton_volver = QPushButton("← Volver al procesamiento")
         self.boton_volver.setObjectName("BotonSecundario")
         self.boton_volver.clicked.connect(self.solicitud_volver.emit)
 
         diseno.addWidget(contenedor_texto, stretch=1)
+        diseno.addWidget(self.boton_ver_tabla)
         diseno.addWidget(self.boton_volver)
 
         return encabezado
@@ -194,6 +210,11 @@ class PaginaResultados(QWidget):
             return
 
         metodo = datos["metodo"]
+
+        self.tabla_transformacion_actual = resultado.get("tabla_transformacion")
+        self.conteos_originales_actuales = resultado.get("hist_conteos_orig")
+        self.metodo_actual = metodo
+        self.boton_ver_tabla.setEnabled(self.tabla_transformacion_actual is not None)
 
         # --- Panel 1: Imagen original ---
         pixmap_original = _numpy_a_qpixmap(resultado["imagen_original"])
@@ -221,3 +242,19 @@ class PaginaResultados(QWidget):
             color=color_hist,
         )
         self.panel_histograma_procesado.establecer_imagen(pixmap_hist_proc)
+
+    def mostrar_tabla_transformacion(self) -> None:
+        if self.tabla_transformacion_actual is None:
+            return
+
+        if self.conteos_originales_actuales is None:
+            return
+
+        ventana = VentanaTablaTransformacion(
+            tabla_transformacion=self.tabla_transformacion_actual,
+            conteos_originales=self.conteos_originales_actuales,
+            metodo=self.metodo_actual,
+            parent=self,
+        )
+
+        ventana.exec()

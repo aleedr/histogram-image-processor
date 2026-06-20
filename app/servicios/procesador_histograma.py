@@ -12,10 +12,11 @@ Fórmulas utilizadas:
  
 import numpy as np
 import cv2
+
 # ---------------------------------------------------------------------------
 # Expansión de histograma
 # ---------------------------------------------------------------------------
-def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> np.ndarray:
+def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> tuple[np.ndarray, np.ndarray]:
 
     """
     Aplica expansión de histograma a una imagen en escala de grises.
@@ -40,6 +41,7 @@ def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) ->
     np.ndarray
         Imagen expandida (2D, dtype uint8).
     """
+
     if imagen is None or imagen.ndim != 2:
         raise ValueError("La imagen debe ser un arreglo 2D en escala de grises.")
  
@@ -52,7 +54,8 @@ def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) ->
  
     # Si la imagen ya tiene el rango completo, no hay nada que expandir.
     if r_max == r_min:
-        return imagen.copy()
+        tabla = np.arange(256, dtype=np.uint8)
+        return imagen.copy(), tabla
  
     # Construimos la tabla de transformación T(r) para los 256 niveles posibles.
     # Usamos float para no perder precisión durante el cálculo.
@@ -67,14 +70,14 @@ def expandir_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) ->
     # Aplicamos la tabla de transformación a cada píxel de la imagen.
     imagen_expandida = tabla[imagen]
 
-    return imagen_expandida
+    return imagen_expandida, tabla
  
  
 # ---------------------------------------------------------------------------
 # Ecualización de histograma
 # ---------------------------------------------------------------------------
  
-def ecualizar_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> np.ndarray:
+def ecualizar_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -> tuple[np.ndarray, np.ndarray]:
 
     """
     Aplica ecualización de histograma a una imagen en escala de grises.
@@ -119,11 +122,13 @@ def ecualizar_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -
     # Validando y normalizando la distribución acumulada
     cdf_valores_validos = cdf[cdf > 0]
     if len(cdf_valores_validos) == 0:
-        return imagen.copy() 
+        tabla = np.arange(256, dtype=np.uint8)
+        return imagen.copy(), tabla
     
     cdf_min = cdf_valores_validos[0]
     if cdf_min == 1:
-        return np.full_like(imagen, s_min, dtype=np.uint8)
+        tabla = np.full(256, s_min, dtype=np.uint8)
+        return np.full_like(imagen, s_min, dtype=np.uint8), tabla
     
     cdf_normalizada = (cdf - cdf_min) / (1 - cdf_min)
     cdf_normalizada = np.clip(cdf_normalizada, 0, 1)
@@ -135,7 +140,7 @@ def ecualizar_histograma(imagen: np.ndarray, s_min: int = 0, s_max: int = 255) -
     # 5. Aplicar la tabla a cada píxel de la imagen
     imagen_ecualizada = tabla[imagen]
 
-    return imagen_ecualizada
+    return imagen_ecualizada, tabla
  
  
 # ---------------------------------------------------------------------------
@@ -201,6 +206,7 @@ def procesar_imagen(imagen: np.ndarray, metodo: str, s_min: int = 0, s_max: int 
         "hist_conteos_orig": None,
         "hist_niveles_proc": None,
         "hist_conteos_proc": None,
+        "tabla_transformacion": None,
         "metodo": metodo,
         "error": None,
     }
@@ -213,14 +219,23 @@ def procesar_imagen(imagen: np.ndarray, metodo: str, s_min: int = 0, s_max: int 
  
         # Aplicar el método seleccionado
         if "Expansión" in metodo or "Expansion" in metodo:
-            imagen_procesada = expandir_histograma(imagen, s_min=s_min, s_max=s_max)
+            imagen_procesada, tabla_transformacion = expandir_histograma(
+                imagen,
+                s_min=s_min,
+                s_max=s_max,
+            )
         elif "Ecualización" in metodo or "Ecualizacion" in metodo:
-            imagen_procesada = ecualizar_histograma(imagen, s_min=s_min, s_max=s_max)
+            imagen_procesada, tabla_transformacion = ecualizar_histograma(
+                imagen,
+                s_min=s_min,
+                s_max=s_max,
+            )
         else:
             resultado["error"] = f"Método desconocido: {metodo}"
             return resultado
- 
+
         resultado["imagen_procesada"] = imagen_procesada
+        resultado["tabla_transformacion"] = tabla_transformacion
  
         # Histograma de la imagen procesada
         niveles_proc, conteos_proc = calcular_histograma(imagen_procesada)
