@@ -264,4 +264,4 @@ class PanelControl(QWidget):
         return self.selector_minimo.value(), self.selector_maximo.value()
 
     def actualizar_posicion_grid(self, x: int, y: int, tamano: int) -> None:
-        self.etiqueta_info_grid.setText(f"Grid: x={x}, y={y}, tamaño={tamano} px")
+        self.etiqueta_info_grid.setText(f"Grid: x={x}, y={y}, tamaño={tamano} pixeles")

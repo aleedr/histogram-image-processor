@@ -54,11 +54,12 @@ class LienzoImagen(QWidget):
 
     def obtener_datos_grid(self) -> dict:
         return {
-            "x": self.grid_x,
-            "y": self.grid_y,
-            "tamano": self.tamano_grid,
-            "habilitado": self.grid_habilitado,
-        }
+            "x_visual": self.grid_x,
+            "y_visual": self.grid_y,
+            "tamano_real": self.tamano_grid,
+            "activo": self.grid_habilitado,
+            "region_real": self.obtener_region_real_grid(),
+    }
 
     # Este método conserva su nombre en inglés porque Qt lo llama automáticamente.
     def resizeEvent(self, event) -> None:
@@ -87,7 +88,8 @@ class LienzoImagen(QWidget):
             return
 
         if event.button() == Qt.LeftButton:
-            rectangulo_grid = QRect(self.grid_x, self.grid_y, self.tamano_grid, self.tamano_grid)
+            ancho_visual, alto_visual = self._obtener_tamano_grid_visual()
+            rectangulo_grid = QRect(self.grid_x, self.grid_y, ancho_visual, alto_visual)
 
             if rectangulo_grid.contains(event.position().toPoint()):
                 self.arrastrando = True
@@ -149,8 +151,37 @@ class LienzoImagen(QWidget):
             "Carga una imagen JPG en escala de grises",
         )
 
+    def _obtener_tamano_grid_visual(self) -> tuple[int, int]:
+        """
+        Convierte el tamaño real del grid a tamaño visual en pantalla.
+
+        self.tamano_grid representa unidades reales de la imagen.
+        Para dibujarlo, se convierte al tamaño equivalente en pantalla.
+        """
+
+        if self.pixmap_original is None or self.pixmap_escalado is None:
+            return self.tamano_grid, self.tamano_grid
+
+        rectangulo_imagen = self._obtener_rectangulo_imagen()
+
+        if rectangulo_imagen.width() <= 0 or rectangulo_imagen.height() <= 0:
+            return self.tamano_grid, self.tamano_grid
+
+        escala_visual_x = rectangulo_imagen.width() / self.pixmap_original.width()
+        escala_visual_y = rectangulo_imagen.height() / self.pixmap_original.height()
+
+        ancho_visual = int(round(self.tamano_grid * escala_visual_x))
+        alto_visual = int(round(self.tamano_grid * escala_visual_y))
+
+        ancho_visual = max(1, ancho_visual)
+        alto_visual = max(1, alto_visual)
+
+        return ancho_visual, alto_visual
+
     def _dibujar_grid(self, pintor: QPainter) -> None:
-        rectangulo = QRect(self.grid_x, self.grid_y, self.tamano_grid, self.tamano_grid)
+        ancho_visual, alto_visual = self._obtener_tamano_grid_visual()
+
+        rectangulo = QRect(self.grid_x, self.grid_y, ancho_visual, alto_visual)
 
         pintor.setBrush(QBrush(QColor(59, 130, 246, 45)))
         pintor.setPen(QPen(QColor(37, 99, 235), 2))
@@ -158,26 +189,73 @@ class LienzoImagen(QWidget):
 
         pintor.setPen(QPen(QColor(37, 99, 235, 150), 1))
 
-        paso = max(3, self.tamano_grid // 5)
+        paso = max(3, min(ancho_visual, alto_visual) // 5)
 
-        for x in range(self.grid_x, self.grid_x + self.tamano_grid + 1, paso):
-            pintor.drawLine(x, self.grid_y, x, self.grid_y + self.tamano_grid)
+        for x in range(self.grid_x, self.grid_x + ancho_visual + 1, paso):
+            pintor.drawLine(x, self.grid_y, x, self.grid_y + alto_visual)
 
-        for y in range(self.grid_y, self.grid_y + self.tamano_grid + 1, paso):
-            pintor.drawLine(self.grid_x, y, self.grid_x + self.tamano_grid, y)
+        for y in range(self.grid_y, self.grid_y + alto_visual + 1, paso):
+            pintor.drawLine(self.grid_x, y, self.grid_x + ancho_visual, y)
 
+    def obtener_region_real_grid(self) -> dict | None:
+        """
+        Convierte la posición visual del grid en coordenadas reales
+        de la imagen original.
+
+        self.tamano_grid representa unidades reales de la imagen.
+        Por eso el ancho y alto reales son directamente self.tamano_grid.
+        """
+
+        if self.pixmap_original is None or self.pixmap_escalado is None:
+            return None
+
+        if not self.grid_habilitado:
+            return None
+
+        rect_imagen = self._obtener_rectangulo_imagen()
+
+        if rect_imagen.width() <= 0 or rect_imagen.height() <= 0:
+            return None
+
+        escala_real_x = self.pixmap_original.width() / rect_imagen.width()
+        escala_real_y = self.pixmap_original.height() / rect_imagen.height()
+
+        x_visual_relativo = self.grid_x - rect_imagen.left()
+        y_visual_relativo = self.grid_y - rect_imagen.top()
+
+        x_real = int(round(x_visual_relativo * escala_real_x))
+        y_real = int(round(y_visual_relativo * escala_real_y))
+
+        ancho_real = self.tamano_grid
+        alto_real = self.tamano_grid
+
+        x_real = max(0, min(x_real, self.pixmap_original.width() - 1))
+        y_real = max(0, min(y_real, self.pixmap_original.height() - 1))
+
+        ancho_real = max(1, min(ancho_real, self.pixmap_original.width() - x_real))
+        alto_real = max(1, min(alto_real, self.pixmap_original.height() - y_real))
+
+        return {
+            "x": x_real,
+            "y": y_real,
+            "ancho": ancho_real,
+            "alto": alto_real,
+        }
+    
     def _limitar_grid_a_imagen(self) -> None:
+        ancho_visual, alto_visual = self._obtener_tamano_grid_visual()
+
         if self.pixmap_escalado is None:
-            self.grid_x = max(0, min(self.grid_x, self.width() - self.tamano_grid))
-            self.grid_y = max(0, min(self.grid_y, self.height() - self.tamano_grid))
+            self.grid_x = max(0, min(self.grid_x, self.width() - ancho_visual))
+            self.grid_y = max(0, min(self.grid_y, self.height() - alto_visual))
             return
 
         rectangulo_imagen = self._obtener_rectangulo_imagen()
-
         minimo_x = rectangulo_imagen.left()
         minimo_y = rectangulo_imagen.top()
-        maximo_x = rectangulo_imagen.right() - self.tamano_grid
-        maximo_y = rectangulo_imagen.bottom() - self.tamano_grid
+
+        maximo_x = rectangulo_imagen.left() + rectangulo_imagen.width() - ancho_visual
+        maximo_y = rectangulo_imagen.top() + rectangulo_imagen.height() - alto_visual
 
         self.grid_x = max(minimo_x, min(self.grid_x, maximo_x))
         self.grid_y = max(minimo_y, min(self.grid_y, maximo_y))
